@@ -1,0 +1,28 @@
+{
+	"name": "2022",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"get_day_input": "dist/download_input.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nickwarters/aoc-2022.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/nickwarters/aoc-2022/issues"
+	},
+	"homepage": "https://github.com/nickwarters/aoc-2022#readme",
+	"dependencies": {
+		"dotenv": "^16.0.3"
+	},
+	"devDependencies": {
+		"@types/node": "^18.11.10"
+	}
+}
