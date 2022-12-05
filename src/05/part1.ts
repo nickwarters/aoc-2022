@@ -37,13 +37,6 @@ function solve(input: string): any {
 			const from = parseInt(f)
 			const to = parseInt(t)
 
-			// console.log({
-			// 	from,
-			// 	to,
-			// 	count,
-			// 	fromStack: stacks[from - 1],
-			// 	toStack: stacks[to - 1],
-			// })
 			while (count > 0) {
 				count--
 				if (stacks[from - 1].length) {
@@ -52,9 +45,10 @@ function solve(input: string): any {
 			}
 		}
 
-    const res =  stacks.reduce((prev, next) => {return  prev += next.pop()}, '')
+		const res = stacks.reduce((prev, next) => {
+			return (prev += next.pop())
+		}, '')
 
-    console.log(res)
     return res 
 }
 
