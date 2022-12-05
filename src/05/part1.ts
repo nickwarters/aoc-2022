@@ -5,40 +5,52 @@ function solve(input: string): any {
 
     const firstInstructionLine = lines.findIndex(x => x.startsWith('move'))
     const stackCount = parseInt(lines[firstInstructionLine - 2].match(/\d/g)!.sort((a,b) => parseInt(b) - parseInt(a))[0])
-    
+
     const stacks = new Array(stackCount)
 
-    let stackIndex = 0
-    for (let r = 0; r < firstInstructionLine - 2; r++){
-        stackIndex = 0
-        let stack = new Array()
-        let item: string[]|null
-        for (let c = 2; c < lines[r].length; c+=4){
-            
-            item = lines[r].substring(c-2, c).match(/([A-Z])/g)
-            if(item){
-                if(!stacks[stackIndex]){stacks[stackIndex] = new Array()}
-                stacks[stackIndex].unshift(item)
-            }
-            stackIndex++
-        }
-    }
+		let stackIndex = 0
+		for (let r = 0; r < firstInstructionLine - 2; r++) {
+			stackIndex = 0
+			let stack = new Array()
+			let item: string[] | null
+			for (let c = 2; c < lines[r].length; c += 4) {
+				item = lines[r].substring(c - 2, c).match(/([A-Z])/g)
+				if (item) {
+					if (!stacks[stackIndex]) {
+						stacks[stackIndex] = new Array()
+					}
+					stacks[stackIndex].unshift(item)
+				}
+				stackIndex++
+			}
+		}
 
-    const instructions = lines.slice(firstInstructionLine)
+		stacks.forEach((s) => console.log(s))
 
-    for(let i = 0; i < instructions.length; i++){
-        const [c, f, t] = instructions[i].match(/\d/g)!
+		const instructions = lines.slice(firstInstructionLine)
 
-        let count = parseInt(c)
-        const from = parseInt(f)
-        const to = parseInt(t)
-        while(count > 0){
-            count--;
-            if(stacks[from -1].length){
-                stacks[to - 1].push(stacks[from - 1].pop())
-            }
-        }
-    }
+		for (let i = 0; i < instructions.length; i++) {
+			if (!instructions[i]) break
+			const [c, f, t] = instructions[i].match(/\d{1,}/g)!
+
+			let count = parseInt(c)
+			const from = parseInt(f)
+			const to = parseInt(t)
+
+			// console.log({
+			// 	from,
+			// 	to,
+			// 	count,
+			// 	fromStack: stacks[from - 1],
+			// 	toStack: stacks[to - 1],
+			// })
+			while (count > 0) {
+				count--
+				if (stacks[from - 1].length) {
+					stacks[to - 1].push(stacks[from - 1].pop())
+				}
+			}
+		}
 
     const res =  stacks.reduce((prev, next) => {return  prev += next.pop()}, '')
 
