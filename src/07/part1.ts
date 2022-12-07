@@ -1,6 +1,8 @@
 import { readFileSync } from 'fs'
 
-const tests: [string, any][] = [[`$ cd /
+const tests: [string, any][] = [
+	[
+		`$ cd /
 $ ls
 dir a
 14848514 b.txt
@@ -22,75 +24,95 @@ $ ls
 4060174 j
 8033020 d.log
 5626152 d.ext
-7214296 k`, 0]]
+7214296 k`,
+		95437,
+	],
+]
 
 tests.forEach(([testData, expected]) => {
-    const result = solve(testData)
-    console.log(`Example Input Solution - Expected: ${expected}, Got: ${result}, ${result === expected ? 'PASS' : 'FAIL'}`)
+	const result = solve(testData)
+	console.log(
+		`Example Input Solution - Expected: ${expected}, Got: ${result}, ${
+			result === expected ? 'PASS' : 'FAIL'
+		}`
+	)
 })
 
-console.log('Full Input Solution', solve(readFileSync('./input.txt', { encoding: 'utf-8' })))
+console.log(
+	'Full Input Solution',
+	solve(readFileSync('./input.txt', { encoding: 'utf-8' }))
+)
 
-type Dir = {[key: string]: Dir | number}
+type Dir = {
+	[key: string]: Dir | number
+}
 
 function solve(input: string): any {
-    const threshold = 10_000
-    let path: string[] = []
-    return Object.entries(input.trimEnd().split('\n').reduce((dirs: Dir , line) => {
-        console.log('line -->', line)
-        if(line=== '$ cd /'){
-            path = ['/']
-            return dirs
+	const threshold = 100_000
+	let files: { [key: string]: number } = {}
+	let dirs = new Set(['/'])
+	const lines = input.trimEnd().split('\n')
 
-        }
+	let inList = false
+	let dirName = ''
+	let path = ['']
 
-        if(line === '$ cd ..'){
-            if(path.length === 1 && path[0] === '/') return dirs
+	let fileName
+	for (const line of lines.slice(1)) {
+		console.log({ line, inList, path })
+		if (inList && line.startsWith('$')) {
+			inList = false
+		}
 
-            path.pop()
-            return dirs
-        }
+		if (inList && line.startsWith('dir ')) {
+			dirName = line.split(' ')[1]
+			console.log({ dirName })
+			dirs.add([...path, dirName].join('/'))
+			continue
+		}
 
-        if(line.startsWith('$ cd ')){
-            line = line.replace('$ cd ', '')
-            
-            if(!(line in dirs)){
-                let t_dir: Dir | null = null
-                let t_name: string
-                for(let i = 0; i < path.length; i++){
-                    t_name = path[i]
-                    t_dir = t_dir !== null ? t_dir[t_name] as Dir : dirs[t_name] as Dir
+		if (inList) {
+			let [size, fileName] = line.split(' ')
+			let n = [...path, fileName].join('/')
+			console.log({ path, dirName, fileName, n })
+			files[n] = parseInt(size)
+			continue
+		}
 
-                }
+		if (line == '$ ls') {
+			inList = true
+		} else if (line == '$ cd ..') {
+			path.pop()
+			dirName = path.length === 0 ? '/' : path.join('/')
+		} else if (line.startsWith('$ cd ')) {
+			let n = line.split(' ')[2]
+			console.log(n)
+			path.push(n)
+			dirName = [...path, line.split(' ')[2]].join('/')
+		} else {
+			throw Error("This should'ne 'appen")
+		}
+	}
 
-                if(!(line in t_dir!)){
-                    t_dir![line] = {}
-                }
-            }
+	function fileSize(dirName: string) {
+		let s = 0
+		Object.entries(files).forEach(([k, v]) => {
+			if (k.startsWith(`${dirName}/`)) {
+				s += v
+			}
+		})
+		if (s > threshold) return 0
 
-            path.push(line)
-            return dirs
-        }
+		return s
+	}
 
-        if(line === '$ ls' || line.startsWith('dir ')) return dirs
+	let start = Object.values(files).reduce((prev, next) => (prev += next), 0)
 
-        const [size, name] = line.match(/\d{1,}|[a-zA-Z\.]{1,}/g)!
-        console.log('size:', size, 'name:', name)
-        let t_dir: Dir | null = null
-        let t_name: string
-        console.log(path)
-        for(let i = 0; i < path.length; i++){
-            t_name = path[i]
-            t_dir = t_dir !== null ? t_dir[t_name] as Dir : dirs[t_name] as Dir
-            console.log(path[i], t_name, t_dir)
-        }
+	if (start > threshold) {
+		start = 0
+	}
 
-        
-        t_dir![name] = parseInt(size)
-         
+	console.log({ dirs, files })
 
-        return dirs
-    }, {'/': {}})).length
-
-    
+	return [...dirs.values()].reduce((prev, d) => (prev += fileSize(d)), 0)
 }
