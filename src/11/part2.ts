@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs'
+import submitAnswer from '../utils/submitAnswer.js'
 
 const tests: [string, any][] = [[`Monkey 0:
   Starting items: 79, 98
@@ -34,6 +35,9 @@ tests.forEach(([testData, expected]) => {
 })
 
 console.log('Full Input Solution', solve(readFileSync('./input.txt', { encoding: 'utf-8' })))
+submitAnswer({answer:solve(readFileSync('./input.txt', {encoding: 'utf-8'})), day: 11, part: 2})
+
+
 
 type Monkey = {
     id: number
