@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsc",
-		"get_day_input": "ts-node utils/downloadInput.ts"
+		"get_day_input": "ts-node src/utils/downloadInput.ts"
 	},
 	"repository": {
 		"type": "git",
