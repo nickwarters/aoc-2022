@@ -35,62 +35,41 @@ type PacketPart = number[] | PacketPart[] | number
 
 function solve(input: string): any {
 
-    const compare = (left: PacketPart, right: PacketPart): boolean => {
+    const compare = (left: PacketPart, right: PacketPart): number => {
 
         if(typeof left === 'number' && typeof right === 'number'){
             //console.log('Comparing number -> number', {left, right})
-            return left < right 
-        }
-
-        if(Array.isArray(left) && typeof right === 'number'){
+            return left - right 
+        } else if(Array.isArray(left) && typeof right === 'number'){
             //console.log('Comparing array -> number', {left, right})
             return compare(left, [right])
-        }
-
-        if(typeof left === 'number' && Array.isArray(right)){
+        } else if(typeof left === 'number' && Array.isArray(right)){
             //console.log('Comparing number -> array', {left, right})
             return compare([left], right)
         }
-
-        let output = false 
-        let shouldReturnFalse = false 
         if(Array.isArray(left) && Array.isArray(right)){
             //console.log('Comparing array -> array', {left, right})
-            let l: PacketPart
-            let r: PacketPart 
 
-            while(left.length > 0 && right.length > 0 && !output && !shouldReturnFalse){
-                l = left.shift()!
-                r = right.shift()!
-                //console.log({l, r})
+            for (let i = 0; i < left.length; i++){
 
-                if(typeof l === 'number' && typeof r === 'number'){
-                    shouldReturnFalse = l > r 
-                }
-                output = compare(l, r)
-                //console.log({output, shouldReturnFalse})
+                if(right[i] === undefined) break
+                let outcome = compare(left[i], right[i])
+
+                if(outcome) return outcome 
             }
 
-            if(shouldReturnFalse){
-                return false 
-            }
-            
-            output = output || !left.length && right.length !== 0 
-            //console.log({leftLength: left.length, leftEmpty: left.length === 0, rightLength: right.length, rightNotEmpty: right.length > 0, output})
+            return left.length - right.length
         }
-
-        return output 
+        return 0 
     }
     
     const packets = input.split('\n\n')
     
     let output = 0
 
-    const finalLine = JSON.parse('[[8,[4,[5,1,5]],5,5,9],[],[[4,4,[]]]]')
-    
     for(let i = 0; i < packets.length; i++){
         //console.log(packets[i])
-        let isCorrect = false 
+        let isCorrect = 0 
         const [left, right] = packets[i].split('\n').map(l => {
             //console.log(l)
             return eval(l)
@@ -100,7 +79,7 @@ function solve(input: string): any {
         isCorrect = compare(left, right)
         //console.log({left, right, isCorrect})
         //console.log('----')
-        if(isCorrect){output += i + 1}
+        if(isCorrect < 0){output += i + 1}
     }
 
 
