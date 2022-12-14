@@ -12,46 +12,53 @@ console.log('Full Input Solution', solve(readFileSync('./input.txt', { encoding:
 
 function solve(input: string): any {
     const lines = input.split('\n').map(line => line.split(' -> ').map(cs => cs.split(',').map(c => parseInt(c))))
+    const blocked = new Set()
     const fallenSand = new Set() 
 
     let dropCount = 0
     let currentSandPos: [number, number] = [500, 0]
-    let canMove = true
 
-    const getNextPos = (current: [number, number]) => {
-
-        const transforms = [[0, 1], [-1, 1], [1, 1]]
-
-        let newPos: [number, number] 
-        for(const t of transforms){
-            newPos = [current[0] + t[0], current[1] + t[1]]
-
-            for(const lineSet of lines){
-                for(let l = 1; l < lineSet.length; l++){
-                    const s = lineSet[l-1]
-                    const e = lineSet[l]
-
+    let floor = 0 
+    for(const lineSet of lines){
+        for(let l = 1; l < lineSet.length; l++){
+            const start = [Math.min(lineSet[l-1][0], lineSet[l][0]), Math.min(lineSet[l-1][1], lineSet[l][1])]
+            const end = [Math.max(lineSet[l-1][0], lineSet[l][0]), Math.max(lineSet[l-1][1], lineSet[l][1])]
+            //console.log({start, end, line: [lineSet[l-1], lineSet[l]]})
+            for(let c = start[0]; c < end[0] + 1; c++){
+                for(let r = start[1]; r < end[1] + 1; r++){
+                    blocked.add(`${c},${r}`)
+                    floor = Math.max(floor, r + 1)
                 }
             }
 
-            if(!fallenSand.has(newPos)){return newPos}
         }
-
-        return current 
     }
+    //console.log(blocked)
 
-    let nextPos = currentSandPos
+    mainLoop:
     while(true){
-        dropCount++
-        currentSandPos = [500, 0]
-        nextPos = getNextPos(currentSandPos)
-        if(nextPos.toString() === currentSandPos.toString()){
-            dropCount-- ;
-            break
+        let sand = [500,0]
+        while(true){
+            //console.log({sand, floor, blocked: blocked.has(`${sand[0]},${sand[1]}`), dropCount})
+            if(sand[1] >= floor){
+                break mainLoop 
+            }
+            if(!blocked.has(`${sand[0]},${sand[1] + 1}`)){
+                sand = [sand[0], sand[1] + 1]
+                continue 
+            }
+            if(!blocked.has(`${sand[0] - 1},${sand[1] + 1}`)){
+                sand = [sand[0] - 1, sand[1] + 1]
+                continue 
+            }
+            if(!blocked.has(`${sand[0] + 1},${sand[1] + 1}`)){
+                sand = [sand[0] + 1, sand[1] + 1]
+                continue 
+            }
+            blocked.add(`${sand[0]},${sand[1]}`)
+            dropCount++;
+            break 
         }
-
-        if(dropCount > 10000){break}
-
     }
 
     return dropCount 
